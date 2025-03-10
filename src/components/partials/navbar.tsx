@@ -1,214 +1,83 @@
-'use client'
-import React, { useState, useEffect } from 'react'
-import { Menu, Search, Bell, ChevronDown } from 'lucide-react'
-import { mainNavLinks, profileMenuLinks, profiles } from '../../../data/navLinks'
-import Image from 'next/image'
+"use client"
 
-const Navbar = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+import { useState, useEffect } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
+import Link from "next/link"
+import { Search, Bell, ChevronDown } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 0) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+export default function Navbar() {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const { scrollY } = useScroll()
 
-    const toggleMobileMenu = () => {
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-        if (isMobileSearchOpen) setIsMobileSearchOpen(false);
-    };
+  // Change navbar background opacity based on scroll position
+  const backgroundColor = useTransform(scrollY, [0, 50], ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.9)"])
 
-    const toggleProfileMenu = () => {
-        setIsProfileMenuOpen(!isProfileMenuOpen);
-    };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setIsScrolled(true)
+      } else {
+        setIsScrolled(false)
+      }
+    }
 
-    const toggleMobileSearch = () => {
-        setIsMobileSearchOpen(!isMobileSearchOpen);
-        if (isMobileMenuOpen) setIsMobileMenuOpen(false);
-    };
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
-    return (
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-black' : 'bg-gradient-to-b from-black/80 to-transparent'}`}>
-            <div className="px-4 sm:px-6 md:px-16 py-2 md:py-4 flex items-center justify-between">
-                {/* Left side: Logo and Navigation */}
-                <div className="flex items-center">
-                    <Image
-                        src="/images/logo/netflix-logo.png"
-                        alt="Netflix"
-                        className='h-7 md:h-12'
-                        width={140}
-                        height={70}
-                        objectFit="contain"
-                    />
-                    <div className="hidden md:flex ml-8 gap-5">
-                        {mainNavLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className="text-sm text-white hover:text-gray-300 transition duration-300"
-                            >
-                                {link.name}
-                            </a>
-                        ))}
-                    </div>
-                </div>
+  return (
+    <motion.header
+      style={{ backgroundColor }}
+      className={cn(
+        "fixed top-0 z-50 w-full transition-colors duration-300 ease-in-out",
+        isScrolled ? "bg-black bg-opacity-90" : "bg-transparent",
+      )}
+    >
+      <div className="flex items-center justify-between px-4 py-4 md:px-12">
+        <div className="flex items-center space-x-8">
+          <Link href="/" className="flex items-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              <span className="text-2xl font-bold text-red-600">NETFLIX</span>
+            </motion.div>
+          </Link>
 
-                {/* Right side: Search, Notifications, Profile */}
-                <div className="flex items-center gap-4">
-                    {/* Search - Desktop */}
-                    <div className="hidden md:block relative">
-                        <div className="relative group">
-                            <button className="text-white p-1 group-hover:bg-black/30 rounded-sm transition duration-300">
-                                <Search className="w-5 h-5" />
-                            </button>
-                            <div className="absolute right-0 top-0 overflow-hidden max-w-0 group-hover:max-w-xs transition-all duration-300 flex items-center">
-                                <div className="flex items-center bg-black/30 ml-1">
-                                    <Search className="w-5 h-5 text-white mx-2" />
-                                    <input
-                                        type="text"
-                                        placeholder="Titles, people, genres"
-                                        className="bg-transparent border-none text-white text-sm py-1 pr-2 focus:outline-none w-48"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          <nav className="hidden space-x-4 md:flex">
+            {["Home", "TV Shows", "Movies", "New & Popular", "My List"].map((item) => (
+              <motion.div key={item} whileHover={{ y: -2 }} whileTap={{ y: 0 }}>
+                <Link href="#" className="text-sm font-medium text-gray-200 transition-colors hover:text-white">
+                  {item}
+                </Link>
+              </motion.div>
+            ))}
+          </nav>
+        </div>
 
-                    {/* Mobile Search Toggle */}
-                    <button
-                        className="text-white md:hidden p-1"
-                        onClick={toggleMobileSearch}
-                    >
-                        <Search className="w-5 h-5" />
-                    </button>
+        <div className="flex items-center space-x-4">
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+            <Button variant="ghost" size="icon" className="text-gray-200 hover:text-white">
+              <Search className="h-5 w-5" />
+            </Button>
+          </motion.div>
 
-                    {/* Notification bell */}
-                    <button className="text-white p-1 hover:bg-black/30 rounded-sm transition duration-300">
-                        <Bell className="w-5 h-5" />
-                    </button>
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+            <Button variant="ghost" size="icon" className="text-gray-200 hover:text-white">
+              <Bell className="h-5 w-5" />
+            </Button>
+          </motion.div>
 
-                    {/* Profile - Desktop */}
-                    <div className="hidden md:block relative">
-                        <button
-                            className="flex items-center gap-1 text-white"
-                            onClick={toggleProfileMenu}
-                        >
-                            <Image
-                                src="https://docs.gravatar.com/wp-content/uploads/2025/02/avatar-default-20250210-256.png"
-                                alt="Profile"
-                                className="w-8 h-8 rounded"
-                                width={100}
-                                height={100}
-                                objectFit="contain"
-                            />
-                            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
-                        </button>
-
-                        {/* Profile dropdown menu */}
-                        {isProfileMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-black/90 border border-gray-700 shadow-lg rounded-md py-2 z-50">
-                                <div className="px-3 py-2">
-                                    {profiles.map((profile) => (
-                                        <div key={profile.name} className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
-                                            <img src={profile.image ? profile.image : "https://docs.gravatar.com/wp-content/uploads/2025/02/avatar-default-20250210-256.png"} alt={profile.name} className="w-8 h-8 rounded" />
-                                            <span className="text-white text-sm">{profile.name}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="border-t border-gray-700 pt-2 mt-1">
-                                    {profileMenuLinks.map((link) => (
-                                        <a
-                                            key={link.name}
-                                            href={link.path}
-                                            className="block px-4 py-2 text-sm text-white hover:bg-gray-700"
-                                        >
-                                            {link.name}
-                                        </a>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Mobile Profile (simplified) */}
-                    <Image
-                        src="https://docs.gravatar.com/wp-content/uploads/2025/02/avatar-default-20250210-256.png"
-                        alt="Profile"
-                        className="w-7 h-7 md:hidden rounded"
-                        width={100}
-                        height={100}
-                        objectFit="contain"
-                    />
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="text-white md:hidden p-1"
-                        onClick={toggleMobileMenu}
-                    >
-                        <Menu className="w-6 h-6" />
-                    </button>
-                </div>
-            </div>
-
-            {/* Mobile Search Bar (when activated) */}
-            {isMobileSearchOpen && (
-                <div className="md:hidden bg-black py-3 px-4 flex items-center gap-2">
-                    <Search className="w-5 h-5 text-white" />
-                    <input
-                        type="text"
-                        placeholder="Search for titles, people, genres"
-                        className="bg-transparent border-none text-white text-sm flex-1 focus:outline-none"
-                        autoFocus
-                    />
-                    <button
-                        className="text-white text-sm"
-                        onClick={toggleMobileSearch}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            )}
-
-            {/* Mobile Menu */}
-            {isMobileMenuOpen && (
-                <div className="md:hidden bg-black py-4 px-4 absolute w-full border-t border-gray-800">
-                    <div className="flex flex-col space-y-4">
-
-                        {mainNavLinks.map((link) => (
-                            <a
-                                key={link.name}
-                                href={link.path}
-                                className="text-sm text-white py-2"
-                            >
-                                {link.name}
-                            </a>
-                        ))}
-
-                        <div className="border-t border-gray-700 pt-3 mt-2">
-                            {profileMenuLinks.map((link) => (
-                                <a
-                                    key={link.name}
-                                    href={link.path}
-                                    className="block py-2 text-sm text-white"
-                                >
-                                    {link.name}
-                                </a>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-        </nav>
-    )
+          <div className="flex items-center space-x-1">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="/placeholder.svg?height=32&width=32" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+            <ChevronDown className="h-4 w-4 text-gray-200" />
+          </div>
+        </div>
+      </div>
+    </motion.header>
+  )
 }
 
-export default Navbar
