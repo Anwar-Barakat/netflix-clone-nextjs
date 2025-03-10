@@ -119,7 +119,7 @@ const Navbar = () => {
                                 <div className="px-3 py-2">
                                     {profiles.map((profile) => (
                                         <div key={profile.name} className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-700 last:border-0 last:pb-0">
-                                            <img src={profile.image} alt={profile.name} className="w-8 h-8 rounded" />
+                                            <img src={profile.image ? profile.image : "https://docs.gravatar.com/wp-content/uploads/2025/02/avatar-default-20250210-256.png"} alt={profile.name} className="w-8 h-8 rounded" />
                                             <span className="text-white text-sm">{profile.name}</span>
                                         </div>
                                     ))}
@@ -182,17 +182,6 @@ const Navbar = () => {
             {isMobileMenuOpen && (
                 <div className="md:hidden bg-black py-4 px-4 absolute w-full border-t border-gray-800">
                     <div className="flex flex-col space-y-4">
-                        <div className="flex items-center gap-3 pb-3 border-b border-gray-700">
-                            <Image
-                                src="https://docs.gravatar.com/wp-content/uploads/2025/02/avatar-default-20250210-256.png"
-                                alt="Profile"
-                                className="w-8 h-8 rounded"
-                                width={100}
-                                height={100}
-                                objectFit="contain"
-                            />
-                            <span className="text-white text-sm">Profile 1</span>
-                        </div>
 
                         {mainNavLinks.map((link) => (
                             <a
